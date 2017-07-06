@@ -1,0 +1,37 @@
+version: "2"
+services: 
+ elasticsearch:
+  image: elasticsearch
+  container_name: elasticsearch
+  command: elasticsearch -Des.network.host=0.0.0.0
+  volumes: 
+    - "ucp-elk-data:/usr/share/elasticsearch/data"
+  networks:
+    - ucp-elk-network
+
+ logstash:
+  image: logstash
+  container_name: logstash
+  ports:
+    - 5600:5600
+  command: sh -c "logstash -e 'input { syslog  { type => syslog port => 5600   } } output { stdout { } elasticsearch { hosts => [ \"elasticsearch\" ] } } filter { json { source => \"message\" } }'"
+  networks: 
+    - ucp-elk-network
+ 
+ kibana:
+   image: kibana
+   container_name: kibana
+   ports:
+     - 5601:5601
+   networks:
+     - ucp-elk-network
+
+volumes:
+  ucp-elk-data:
+
+networks:
+  ucp-elk-network:
+
+  
+
+
